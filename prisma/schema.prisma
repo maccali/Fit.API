@@ -1,0 +1,26 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// model Beats {
+//   id                String           @id @default(uuid())
+//   data1             String
+//   data2             String
+//   createdAt         DateTime
+//   BeatMeasurement   BeatMeasurement? @relation(fields: [beatMeasurementId], references: [id])
+//   beatMeasurementId String?
+// }
+
+model BeatMeasurement {
+  id           String  @id @default(uuid())
+  userId       String
+  measurements Json[]
+}

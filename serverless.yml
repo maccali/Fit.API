@@ -1,0 +1,62 @@
+service: fit-test
+disabledDeprecations:
+  - CODE_1 # To disable specific deprecation with code "CODE_1"
+  - '*' # To disable all deprecation messages
+useDotenv: true
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  lambdaHashingVersion: '20201221'
+  stage: ${opt:stage, "${env:stage, 'local'}"}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:CreateTable
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:ListStreams
+          Resource: 'arn:aws:dynamodb:us-east-1:*:*'
+        - Effect: Allow
+          Action:
+            - sns:Publish
+            - sns:Subscribe
+          Resource: 'arn:aws:sns:us-east-1:*:*'
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-typescript
+
+functions:
+  getPresenters:
+    handler: src/cells/v1/getPresenters/handler.get
+    events:
+      - http:
+          path: /
+          method: get
+  postMeasurement:
+    handler: src/cells/v1/postMeasurement/handler.post
+    events:
+      - http:
+          path: /measurement
+          method: post
+  getMeasurement:
+    handler: src/cells/v1/getMeasurement/handler.get
+    events:
+      - http:
+          path: /measurement/{measurementId}
+          method: get
+  getBeatMeasureByUser:
+    handler: src/cells/v1/getBeatMeasureByUser/handler.get
+    events:
+      - http:
+          path: /beat-measurement/{userId}
+          method: get

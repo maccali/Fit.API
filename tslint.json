@@ -1,0 +1,6 @@
+{
+    "extends": "tslint-config-standard",
+    "rules": {
+      "variable-name": { "options": ["check-format", "allow-pascal-case"] }
+    }
+  }
