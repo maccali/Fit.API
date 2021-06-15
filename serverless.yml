@@ -60,3 +60,15 @@ functions:
       - http:
           path: /beat-measurement/{userId}
           method: get
+  postLogin:
+    handler: src/cells/v1/postLogin/handler.post
+    events:
+      - http:
+          path: /login
+          method: post
+  postRegister:
+    handler: src/cells/v1/postRegister/handler.post
+    events:
+      - http:
+          path: /register
+          method: post
