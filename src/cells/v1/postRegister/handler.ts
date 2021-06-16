@@ -2,6 +2,7 @@
 
 import AWS from 'aws-sdk'
 // import {AWSCognito} from 'amazon-cognito-identity-js'
+import Auth from './../../../middlewares/auth'
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -9,10 +10,17 @@ AWS.config.update({
   region: process.env.AWS_REGION
 })
 
-const USERPOOLID = 'us-east-1_dv6kztdZA'
-const CLIENTID = '77hinpirsu99d5f5qa96tcrk8u'
+// const USER_POOL_ID = process.env.AWS_USER_POOL_ID
+const CLIENT_ID = process.env.AWS_CLIENT_ID
 
 module.exports.post = async (event: any) => {
+  const token = event.headers.token ? event.headers.token : null
+  if (!(await Auth.valid(token))) {
+    console.log('dasdas')
+    return {
+      statusCode: 403
+    }
+  }
   const { email, password } = JSON.parse(event.body)
 
   var authenticationData = {
@@ -28,7 +36,7 @@ module.exports.post = async (event: any) => {
       .signUp({
         ...authenticationData,
         // UserPoolId: USERPOOLID,
-        ClientId: CLIENTID
+        ClientId: CLIENT_ID
       })
       .promise()
 
@@ -39,7 +47,7 @@ module.exports.post = async (event: any) => {
     }
   } catch (error) {
     return {
-      statusCode: 500,
+      statusCode: 500
       // body: JSON.stringify(error)
     }
   }

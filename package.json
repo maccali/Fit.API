@@ -21,6 +21,7 @@
     "amazon-cognito-identity-js": "^5.0.3",
     "aws-sdk": "^2.926.0",
     "dynamoose": "^2.7.3",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "verify-cognito-token": "^1.2.4"
   }
 }

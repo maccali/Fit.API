@@ -1,6 +1,8 @@
 'use strict'
 
 import { v4 as uuid } from 'uuid'
+import * as AmazonCognitoIdentity from 'amazon-cognito-identity-js'
+import Auth from './../../../middlewares/auth'
 
 const AWS = require('aws-sdk')
 
@@ -16,6 +18,15 @@ const TABLE_NAME = 'PSMeasurements'
 
 module.exports.post = async (event: any) => {
   const { userId, measurements } = JSON.parse(event.body)
+
+  const { token } = event.headers
+  if (!(await Auth.valid(token))) {
+    return {
+      statusCode: 403
+    }
+  }
+  console.log('token', token)
+  console.log('Auth.valid(token)', Auth.valid(token))
 
   let putItemParams = {
     TableName: TABLE_NAME,

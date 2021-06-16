@@ -10,8 +10,8 @@ AWS.config.update({
   region: process.env.AWS_REGION
 })
 
-const USERPOOLID = 'us-east-1_dv6kztdZA'
-const CLIENTID = '77hinpirsu99d5f5qa96tcrk8u'
+const USER_POOL_ID = process.env.AWS_USER_POOL_ID
+const CLIENT_ID = process.env.AWS_CLIENT_ID
 
 module.exports.post = async (event: any) => {
   console.log('event ->', event)
@@ -28,7 +28,7 @@ module.exports.post = async (event: any) => {
 
   var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData)
 
-  var poolData = { UserPoolId: USERPOOLID, ClientId: CLIENTID }
+  var poolData = { UserPoolId: USER_POOL_ID, ClientId: CLIENT_ID }
   var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData)
 
   var userData = {
@@ -39,12 +39,17 @@ module.exports.post = async (event: any) => {
   var cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData)
   const cog = await new Promise((resolve, reject) => {
     cognitoUser.authenticateUser(authenticationDetails, {
-      onSuccess: function (result) {
-        var accessToken = result.getAccessToken()
+      onSuccess: function (result: any) {
+        const tokens = {
+          // accessToken: result.getAccessToken().getJwtToken(),
+          token: result.getIdToken().getJwtToken(),
+          // refreshToken: result.getRefreshToken().getToken()
+          payload: result.idToken.payload
+        }
         console.log('result =>', result)
         resolve({
           statusCode: 200,
-          body: JSON.stringify(accessToken)
+          body: JSON.stringify(tokens)
         })
         /* Use the idToken for Logins Map when Federating User Pools with identity pools or when passing through an Authorization Header to an API Gateway Authorizer */
         // var idToken = result.idToken.jwtToken

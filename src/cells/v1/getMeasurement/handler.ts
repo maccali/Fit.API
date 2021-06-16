@@ -1,6 +1,7 @@
 'use strict'
 
 import AWS from 'aws-sdk'
+import Auth from './../../../middlewares/auth'
 
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -13,8 +14,12 @@ const dynamodb = new AWS.DynamoDB.DocumentClient()
 const TABLE_NAME = 'PSMeasurements'
 
 module.exports.get = async (event: any) => {
-  console.log('event ->', event)
-
+  const { token } = event.headers
+  if (!(await Auth.valid(token))) {
+    return {
+      statusCode: 403
+    }
+  }
   const measurementId = String(event.pathParameters.measurementId)
 
   // const { measurementId } = JSON.parse(event.pathParameters as Object)
@@ -32,7 +37,7 @@ module.exports.get = async (event: any) => {
   console.log('params', params)
 
   try {
-    const results = await dynamodb.query(params).promise();
+    const results = await dynamodb.query(params).promise()
     console.log('results', results)
 
     return {

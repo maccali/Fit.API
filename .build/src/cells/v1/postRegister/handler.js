@@ -13,14 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const auth_1 = __importDefault(require("./../../../middlewares/auth"));
 aws_sdk_1.default.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
 });
-const USERPOOLID = 'us-east-1_dv6kztdZA';
-const CLIENTID = '77hinpirsu99d5f5qa96tcrk8u';
+const CLIENT_ID = process.env.AWS_CLIENT_ID;
 module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    const token = event.headers.token ? event.headers.token : null;
+    if (!(yield auth_1.default.valid(token))) {
+        console.log('dasdas');
+        return {
+            statusCode: 403
+        };
+    }
     const { email, password } = JSON.parse(event.body);
     var authenticationData = {
         Username: email,
@@ -30,7 +37,7 @@ module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const cognitoProvider = new aws_sdk_1.default.CognitoIdentityServiceProvider();
         const signIn = yield cognitoProvider
-            .signUp(Object.assign(Object.assign({}, authenticationData), { ClientId: CLIENTID }))
+            .signUp(Object.assign(Object.assign({}, authenticationData), { ClientId: CLIENT_ID }))
             .promise();
         console.log('signIn', signIn);
         return {
@@ -40,7 +47,7 @@ module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () 
     }
     catch (error) {
         return {
-            statusCode: 500,
+            statusCode: 500
         };
     }
 });

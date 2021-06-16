@@ -38,8 +38,8 @@ aws_sdk_1.default.config.update({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     region: process.env.AWS_REGION
 });
-const USERPOOLID = 'us-east-1_dv6kztdZA';
-const CLIENTID = '77hinpirsu99d5f5qa96tcrk8u';
+const USER_POOL_ID = process.env.AWS_USER_POOL_ID;
+const CLIENT_ID = process.env.AWS_CLIENT_ID;
 module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () {
     console.log('event ->', event);
     const { email, password } = JSON.parse(event.body);
@@ -49,7 +49,7 @@ module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () 
     };
     console.log('authenticationData', authenticationData);
     var authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails(authenticationData);
-    var poolData = { UserPoolId: USERPOOLID, ClientId: CLIENTID };
+    var poolData = { UserPoolId: USER_POOL_ID, ClientId: CLIENT_ID };
     var userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
     var userData = {
         Username: email,
@@ -59,11 +59,14 @@ module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () 
     const cog = yield new Promise((resolve, reject) => {
         cognitoUser.authenticateUser(authenticationDetails, {
             onSuccess: function (result) {
-                var accessToken = result.getAccessToken();
+                const tokens = {
+                    token: result.getIdToken().getJwtToken(),
+                    payload: result.idToken.payload
+                };
                 console.log('result =>', result);
                 resolve({
                     statusCode: 200,
-                    body: JSON.stringify(accessToken)
+                    body: JSON.stringify(tokens)
                 });
             },
             onFailure: function (err) {

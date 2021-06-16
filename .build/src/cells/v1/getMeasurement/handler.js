@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const aws_sdk_1 = __importDefault(require("aws-sdk"));
+const auth_1 = __importDefault(require("./../../../middlewares/auth"));
 aws_sdk_1.default.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
@@ -21,7 +22,12 @@ aws_sdk_1.default.config.update({
 const dynamodb = new aws_sdk_1.default.DynamoDB.DocumentClient();
 const TABLE_NAME = 'PSMeasurements';
 module.exports.get = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log('event ->', event);
+    const { token } = event.headers;
+    if (!(yield auth_1.default.valid(token))) {
+        return {
+            statusCode: 403
+        };
+    }
     const measurementId = String(event.pathParameters.measurementId);
     console.log('measurementId', measurementId);
     const params = {
