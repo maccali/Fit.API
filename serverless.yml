@@ -35,6 +35,11 @@ plugins:
   - serverless-offline
   - serverless-plugin-typescript
 
+custom:
+  serverless-offline:
+    port: 4000
+    stage: local
+
 functions:
   getPresenters:
     handler: src/cells/v1/getPresenters/handler.get

@@ -32,9 +32,27 @@ module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () 
     }
     console.log('token', token);
     console.log('Auth.valid(token)', auth_1.default.valid(token));
+    const startTime = new Date(measurements[0].time);
+    console.log('startTime', startTime);
+    const endTime = new Date(measurements[measurements.length - 1].time);
+    console.log('endTime', endTime);
+    const minutes = (endTime - startTime) / (1000 * 60);
+    const bpm = measurements.length / minutes;
+    const seconds = (endTime - startTime) / ((1000 * 60) / 60);
+    const hours = (endTime - startTime) / (((1000 * 60) / 60) * 60 * 60);
+    console.log('minutes', minutes);
     let putItemParams = {
         TableName: TABLE_NAME,
-        Item: { id: uuid_1.v4(), userId, measurements }
+        Item: {
+            id: uuid_1.v4(),
+            bpm,
+            measurementTimeMinutes: minutes,
+            measurementTimeSeconds: seconds,
+            measurementTimeHours: hours,
+            userId,
+            createdAt: new Date().toISOString(),
+            measurements
+        }
     };
     try {
         yield dynamodb.put(putItemParams).promise();

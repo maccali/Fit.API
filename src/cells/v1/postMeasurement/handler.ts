@@ -28,9 +28,29 @@ module.exports.post = async (event: any) => {
   console.log('token', token)
   console.log('Auth.valid(token)', Auth.valid(token))
 
+  const startTime = new Date(measurements[0].time)
+  console.log('startTime', startTime)
+  const endTime = new Date(measurements[measurements.length - 1].time)
+  console.log('endTime', endTime)
+
+  const minutes = (endTime - startTime) / (1000 * 60)
+  const bpm = measurements.length / minutes
+  const seconds = (endTime - startTime) / ((1000 * 60) / 60)
+  const hours = (endTime - startTime) / (((1000 * 60) / 60) * 60 * 60)
+  console.log('minutes', minutes)
+
   let putItemParams = {
     TableName: TABLE_NAME,
-    Item: { id: uuid(), userId, measurements }
+    Item: {
+      id: uuid(),
+      bpm,
+      measurementTimeMinutes: minutes,
+      measurementTimeSeconds: seconds,
+      measurementTimeHours: hours,
+      userId,
+      createdAt: new Date().toISOString(),
+      measurements
+    }
     // ReturnValues: 'ALL_OLD'
   }
 
