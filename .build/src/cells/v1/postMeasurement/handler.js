@@ -23,7 +23,7 @@ AWS.config.update({
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const TABLE_NAME = 'PSMeasurements';
 module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, measurements } = JSON.parse(event.body);
+    const { userId, measureTime, measurements } = JSON.parse(event.body);
     const { token } = event.headers;
     if (!(yield auth_1.default.valid(token))) {
         return {
@@ -45,6 +45,7 @@ module.exports.post = (event) => __awaiter(void 0, void 0, void 0, function* () 
         TableName: TABLE_NAME,
         Item: {
             id: uuid_1.v4(),
+            measureTime,
             bpm,
             measurementTimeMinutes: minutes,
             measurementTimeSeconds: seconds,

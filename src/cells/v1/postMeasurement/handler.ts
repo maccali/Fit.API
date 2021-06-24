@@ -17,7 +17,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient()
 const TABLE_NAME = 'PSMeasurements'
 
 module.exports.post = async (event: any) => {
-  const { userId, measurements } = JSON.parse(event.body)
+  const { userId, measureTime, measurements } = JSON.parse(event.body)
 
   const { token } = event.headers
   if (!(await Auth.valid(token))) {
@@ -43,6 +43,7 @@ module.exports.post = async (event: any) => {
     TableName: TABLE_NAME,
     Item: {
       id: uuid(),
+      measureTime,
       bpm,
       measurementTimeMinutes: minutes,
       measurementTimeSeconds: seconds,
